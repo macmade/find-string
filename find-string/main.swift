@@ -28,7 +28,7 @@ let arguments = ProcessInfo.processInfo.arguments
 
 if arguments.count != 3
 {
-    let exec = arguments.isEmpty ? "FindString" : URL( fileURLWithPath: arguments[ 0 ] ).lastPathComponent
+    let exec = arguments.isEmpty ? "find-string" : URL( fileURLWithPath: arguments[ 0 ] ).lastPathComponent
 
     print( "Usage: \( exec ) PATH STRING" )
     exit( -1 )

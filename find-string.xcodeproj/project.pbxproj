@@ -24,7 +24,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		05A0849628ECA9D5008FD8EA /* FindString */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = FindString; sourceTree = BUILT_PRODUCTS_DIR; };
+		05A0849628ECA9D5008FD8EA /* find-string */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "find-string"; sourceTree = BUILT_PRODUCTS_DIR; };
 		05A0849928ECA9D5008FD8EA /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		05A084A128ECA9E9008FD8EA /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		05A084A628ECB56E008FD8EA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -92,7 +92,7 @@
 			children = (
 				05A084A628ECB56E008FD8EA /* README.md */,
 				05A084A728ECB578008FD8EA /* xcconfig */,
-				05A0849828ECA9D5008FD8EA /* FindString */,
+				05A0849828ECA9D5008FD8EA /* find-string */,
 				05A0849728ECA9D5008FD8EA /* Products */,
 			);
 			sourceTree = "<group>";
@@ -100,18 +100,18 @@
 		05A0849728ECA9D5008FD8EA /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				05A0849628ECA9D5008FD8EA /* FindString */,
+				05A0849628ECA9D5008FD8EA /* find-string */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		05A0849828ECA9D5008FD8EA /* FindString */ = {
+		05A0849828ECA9D5008FD8EA /* find-string */ = {
 			isa = PBXGroup;
 			children = (
 				05A0849928ECA9D5008FD8EA /* main.swift */,
 				05A084A128ECA9E9008FD8EA /* Task.swift */,
 			);
-			path = FindString;
+			path = "find-string";
 			sourceTree = "<group>";
 		};
 		05A084A728ECB578008FD8EA /* xcconfig */ = {
@@ -243,9 +243,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		05A0849528ECA9D5008FD8EA /* FindString */ = {
+		05A0849528ECA9D5008FD8EA /* find-string */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 05A0849D28ECA9D5008FD8EA /* Build configuration list for PBXNativeTarget "FindString" */;
+			buildConfigurationList = 05A0849D28ECA9D5008FD8EA /* Build configuration list for PBXNativeTarget "find-string" */;
 			buildPhases = (
 				05A0849228ECA9D5008FD8EA /* Sources */,
 				05A0849328ECA9D5008FD8EA /* Frameworks */,
@@ -255,9 +255,9 @@
 			);
 			dependencies = (
 			);
-			name = FindString;
+			name = "find-string";
 			productName = GetStrings;
-			productReference = 05A0849628ECA9D5008FD8EA /* FindString */;
+			productReference = 05A0849628ECA9D5008FD8EA /* find-string */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -275,7 +275,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 05A0849128ECA9D5008FD8EA /* Build configuration list for PBXProject "FindString" */;
+			buildConfigurationList = 05A0849128ECA9D5008FD8EA /* Build configuration list for PBXProject "find-string" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -288,7 +288,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				05A0849528ECA9D5008FD8EA /* FindString */,
+				05A0849528ECA9D5008FD8EA /* find-string */,
 			);
 		};
 /* End PBXProject section */
@@ -337,7 +337,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		05A0849128ECA9D5008FD8EA /* Build configuration list for PBXProject "FindString" */ = {
+		05A0849128ECA9D5008FD8EA /* Build configuration list for PBXProject "find-string" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				05A0849B28ECA9D5008FD8EA /* Debug */,
@@ -346,7 +346,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		05A0849D28ECA9D5008FD8EA /* Build configuration list for PBXNativeTarget "FindString" */ = {
+		05A0849D28ECA9D5008FD8EA /* Build configuration list for PBXNativeTarget "find-string" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				05A0849E28ECA9D5008FD8EA /* Debug */,

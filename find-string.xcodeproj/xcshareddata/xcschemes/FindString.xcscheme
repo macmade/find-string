@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "05A0849528ECA9D5008FD8EA"
-               BuildableName = "FindString"
-               BlueprintName = "FindString"
-               ReferencedContainer = "container:FindString.xcodeproj">
+               BuildableName = "find-string"
+               BlueprintName = "find-string"
+               ReferencedContainer = "container:find-string.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,9 +46,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "05A0849528ECA9D5008FD8EA"
-            BuildableName = "FindString"
-            BlueprintName = "FindString"
-            ReferencedContainer = "container:FindString.xcodeproj">
+            BuildableName = "find-string"
+            BlueprintName = "find-string"
+            ReferencedContainer = "container:find-string.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -63,9 +63,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "05A0849528ECA9D5008FD8EA"
-            BuildableName = "FindString"
-            BlueprintName = "FindString"
-            ReferencedContainer = "container:FindString.xcodeproj">
+            BuildableName = "find-string"
+            BlueprintName = "find-string"
+            ReferencedContainer = "container:find-string.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
