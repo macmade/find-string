@@ -31,7 +31,7 @@ if arguments.count != 3
     let exec = arguments.isEmpty ? "find-string" : URL( fileURLWithPath: arguments[ 0 ] ).lastPathComponent
 
     print( "Usage: \( exec ) PATH STRING" )
-    exit( -1 )
+    exit( arguments.count == 1 ? 0 : -1 )
 }
 
 let path   = arguments[ 1 ]
