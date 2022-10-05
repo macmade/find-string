@@ -6,8 +6,8 @@ jobs:
         strategy:
             matrix:
                 run-config:
-                    - { scheme: 'FindString', configuration: 'Debug',   project: 'FindString.xcodeproj', build: 1, analyze: 1, test: 0, info: 1, destination: 'platform=macOS' }
-                    - { scheme: 'FindString', configuration: 'Release', project: 'FindString.xcodeproj', build: 1, analyze: 1, test: 0, info: 1, destination: 'platform=macOS' }
+                    - { scheme: 'find-string', configuration: 'Debug',   project: 'find-string.xcodeproj', build: 1, analyze: 1, test: 0, info: 1, destination: 'platform=macOS' }
+                    - { scheme: 'find-string', configuration: 'Release', project: 'find-string.xcodeproj', build: 1, analyze: 1, test: 0, info: 1, destination: 'platform=macOS' }
         steps:
             
             - uses: actions/checkout@v1
