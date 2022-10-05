@@ -64,5 +64,15 @@ enumerator.compactMap { $0 as? String }.forEach
     if out.contains( search )
     {
         print( url.path )
+
+        out.components( separatedBy: .newlines ).forEach
+        {
+            if $0.contains( search )
+            {
+                print( "    \( $0 )" )
+            }
+        }
+
+        print( "" )
     }
 }
