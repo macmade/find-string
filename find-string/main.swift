@@ -45,34 +45,37 @@ else
 
 enumerator.compactMap { $0 as? String }.forEach
 {
-    let url = URL( fileURLWithPath: path ).appendingPathComponent( $0 )
-
-    guard FileManager.default.isExecutableFile( atPath: url.path )
-    else
+    name in autoreleasepool
     {
-        return
-    }
+        let url = URL( fileURLWithPath: path ).appendingPathComponent( name )
 
-    guard let task = Task.run( path: "/usr/bin/strings", arguments: [ url.path ], input: nil ),
-          let out  = String( data: task.standardOutput, encoding: .utf8 ),
-          task.terminationStatus == 0
-    else
-    {
-        return
-    }
-
-    if out.contains( search )
-    {
-        print( url.path )
-
-        out.components( separatedBy: .newlines ).forEach
+        guard FileManager.default.isExecutableFile( atPath: url.path )
+        else
         {
-            if $0.contains( search )
-            {
-                print( "    \( $0 )" )
-            }
+            return
         }
 
-        print( "" )
+        guard let task = Task.run( path: "/usr/bin/strings", arguments: [ url.path ], input: nil ),
+              let out  = String( data: task.standardOutput, encoding: .utf8 ),
+              task.terminationStatus == 0
+        else
+        {
+            return
+        }
+
+        if out.contains( search )
+        {
+            print( url.path )
+
+            out.components( separatedBy: .newlines ).forEach
+            {
+                if $0.contains( search )
+                {
+                    print( "    \( $0 )" )
+                }
+            }
+
+            print( "" )
+        }
     }
 }
