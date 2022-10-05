@@ -310,6 +310,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 05A084AC28ECB578008FD8EA /* Debug.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
 			};
 			name = Debug;
 		};
@@ -317,6 +320,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 05A084AD28ECB578008FD8EA /* Release.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
 			};
 			name = Release;
 		};
