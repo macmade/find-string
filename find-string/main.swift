@@ -23,59 +23,103 @@
  ******************************************************************************/
 
 import Foundation
+import ArgumentParser
 
-let arguments = ProcessInfo.processInfo.arguments
-
-if arguments.count != 3
+struct Options: ParsableArguments
 {
-    let exec = arguments.isEmpty ? "find-string" : URL( fileURLWithPath: arguments[ 0 ] ).lastPathComponent
-
-    print( "Usage: \( exec ) PATH STRING" )
-    exit( arguments.count == 1 ? 0 : -1 )
+    @Flag(     help: "Performs a case-insensitive search."            ) var insensitive = false
+    @Flag(     help: "Also search in the symbols table."              ) var symbols     = false
+    @Flag(     help: "Also search in the Objective-C methods table."  ) var objc        = false
+    @Argument( help: "The directory to search."                       ) var path:         String
+    @Argument( help: "The strings to search for."                     ) var strings:      [ String ]
 }
 
-let path   = arguments[ 1 ]
-let search = arguments[ 2 ]
+let options = Options.parseOrExit()
 
-guard let enumerator = FileManager.default.enumerator( atPath: path )
+if options.objc, FileManager.default.fileExists( atPath: "/opt/homebrew/bin/macho" ) == false
+{
+    print( "Error: The macho utility is not installed in /opt/homebrew/bin" )
+    print( "Please run: brew install --HEAD macmade/tap/macho" )
+    exit( -1 )
+}
+
+guard let enumerator = FileManager.default.enumerator( atPath: options.path )
 else
 {
+    print( "Error: Cannot enumerate directory \( options.path )" )
     exit( -1 )
+}
+
+func getLines( command: String, arguments: [ String ] ) -> [ String ]
+{
+    guard let task    = Task.run( path: command, arguments: arguments, input: nil ),
+          let out     = String( data: task.standardOutput, encoding: .utf8 ),
+          task.terminationStatus == 0
+    else
+    {
+        return []
+    }
+    
+    return out.components( separatedBy: .newlines )
+}
+
+func getStrings( url: URL ) -> [ String ]
+{
+    getLines( command: "/usr/bin/strings", arguments: [ url.path ] )
+}
+
+func getSymbols( url: URL ) -> [ String ]
+{
+    getLines( command: "/usr/bin/nm", arguments: [ url.path ] )
+}
+
+func getObjCMethods( url: URL ) -> [ String ]
+{
+    getLines( command: "/opt/homebrew/bin/macho", arguments: [ "-m", url.path ] )
 }
 
 enumerator.compactMap { $0 as? String }.forEach
 {
     name in autoreleasepool
     {
-        let url = URL( fileURLWithPath: path ).appendingPathComponent( name )
+        let url = URL( fileURLWithPath: options.path ).appendingPathComponent( name )
 
         guard FileManager.default.isExecutableFile( atPath: url.path )
         else
         {
             return
         }
-
-        guard let task = Task.run( path: "/usr/bin/strings", arguments: [ url.path ], input: nil ),
-              let out  = String( data: task.standardOutput, encoding: .utf8 ),
-              task.terminationStatus == 0
-        else
+        
+        let strings     = getStrings( url: url )
+        let symbols     = options.symbols ? getSymbols(     url: url ) : []
+        let objcMethods = options.objc    ? getObjCMethods( url: url ) : []
+        let all         = [ strings, symbols, objcMethods ].flatMap { $0 }
+        
+        options.strings.forEach
         {
-            return
-        }
-
-        if out.contains( search )
-        {
-            print( url.path )
-
-            out.components( separatedBy: .newlines ).forEach
+            search in
+            
+            let matches = all.filter
             {
-                if $0.contains( search )
+                if options.insensitive
                 {
-                    print( "    \( $0 )" )
+                    return $0.localizedCaseInsensitiveContains( search )
+                }
+                else
+                {
+                    return $0.contains( search )
                 }
             }
-
-            print( "" )
+            
+            if matches.isEmpty == false
+            {
+                print( url.path )
+                
+                matches.forEach
+                {
+                    print( "    \( $0.trimmingCharacters( in: .whitespaces ) )" )
+                }
+            }
         }
     }
 }

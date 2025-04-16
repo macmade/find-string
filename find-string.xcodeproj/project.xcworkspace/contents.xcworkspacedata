@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:/Users/macmade/Documents/Macmade/GitHub/find-string/find-string.xcodeproj">
+      location = "self:">
    </FileRef>
 </Workspace>
