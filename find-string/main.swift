@@ -28,6 +28,7 @@ import ArgumentParser
 struct Options: ParsableArguments
 {
     @Flag(     help: "Performs a case-insensitive search."            ) var insensitive = false
+    @Flag(     help: "Treat every file type as an executable."        ) var all         = false
     @Flag(     help: "Also search in the symbols table."              ) var symbols     = false
     @Flag(     help: "Also search in the Objective-C methods table."  ) var objc        = false
     @Argument( help: "The directory to search."                       ) var path:         String
@@ -61,7 +62,12 @@ let files: [ URL ] = enumerator.compactMap
         }
         
         let url = URL( fileURLWithPath: options.path ).appendingPathComponent( file )
-
+        
+        if options.all
+        {
+            return url
+        }
+        
         guard FileManager.default.isExecutableFile( atPath: url.path )
         else
         {
