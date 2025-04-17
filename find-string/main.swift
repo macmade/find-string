@@ -28,7 +28,6 @@ import ArgumentParser
 struct Options: ParsableArguments
 {
     @Flag(     help: "Performs a case-insensitive search."            ) var insensitive = false
-    @Flag(     help: "Treat every file type as an executable."        ) var all         = false
     @Flag(     help: "Also search in the symbols table."              ) var symbols     = false
     @Flag(     help: "Also search in the Objective-C methods table."  ) var objc        = false
     @Argument( help: "The directory to search."                       ) var path:         String
@@ -37,13 +36,6 @@ struct Options: ParsableArguments
 
 let options = Options.parseOrExit()
 
-if options.objc, FileManager.default.fileExists( atPath: "/opt/homebrew/bin/macho" ) == false
-{
-    print( "Error: The macho utility is not installed in /opt/homebrew/bin" )
-    print( "Please run: brew install --HEAD macmade/tap/macho" )
-    exit( -1 )
-}
-
 guard let enumerator = FileManager.default.enumerator( atPath: options.path )
 else
 {
@@ -51,7 +43,13 @@ else
     exit( -1 )
 }
 
-let files: [ URL ] = enumerator.compactMap
+enum FileType
+{
+    case machO
+    case windowsPE
+}
+
+let files: [ ( url: URL, type: FileType ) ] = enumerator.compactMap
 {
     file in return autoreleasepool
     {
@@ -63,28 +61,42 @@ let files: [ URL ] = enumerator.compactMap
         
         let url = URL( fileURLWithPath: options.path ).appendingPathComponent( file )
         
-        if options.all
+        if FileManager.default.isExecutableFile( atPath: url.path ) || isMachO( url: url )
         {
-            return url
+            return ( url, .machO )
         }
         
-        guard FileManager.default.isExecutableFile( atPath: url.path )
-        else
+        if url.pathExtension == "exe" || url.pathExtension == "dll" || isWindowsPE( url: url )
         {
-            return nil
+            return ( url, .windowsPE )
         }
         
-        return url
+        return nil
     }
+}
+
+if options.objc, FileManager.default.fileExists( atPath: "/opt/homebrew/bin/macho" ) == false
+{
+    print( "Error: The macho utility is not installed in /opt/homebrew/bin" )
+    print( "Please run: brew install macmade/tap/macho" )
+    exit( -1 )
+}
+
+
+if files.contains( where: { $0.type == .windowsPE } ), FileManager.default.fileExists( atPath: "/opt/homebrew/bin/rpecli" ) == false
+{
+    print( "Error: The rpecli utility is not installed in /opt/homebrew/bin" )
+    print( "Please run: brew install macmade/tap/rpecli" )
+    exit( -1 )
 }
 
 files.forEach
 {
     file in autoreleasepool
     {
-        let strings     = getStrings( url: file )
-        let symbols     = options.symbols ? getSymbols(     url: file ) : []
-        let objcMethods = options.objc    ? getObjCMethods( url: file ) : []
+        let strings     = getStrings( file: file )
+        let symbols     = options.symbols ? getSymbols(     file: file ) : []
+        let objcMethods = options.objc    ? getObjCMethods( file: file ) : []
         let all         = [ strings, symbols, objcMethods ].flatMap { $0 }
         let matches     = all.filter
         {
@@ -93,7 +105,7 @@ files.forEach
         
         if matches.isEmpty == false
         {
-            print( file.path )
+            print( file.url.path )
             
             matches.forEach
             {
@@ -101,6 +113,56 @@ files.forEach
             }
         }
     }
+}
+
+func isMachO( url: URL ) -> Bool
+{
+    let signatures: [ UInt32 ] =
+    [
+        0xfeedface,
+        0xcefaedfe,
+        0xfeedfacf,
+        0xcffaedfe,
+        0xcafebabe,
+        0xbebafeca,
+        0x64796C64,
+        0x646C7964,
+    ]
+    
+    guard let data = try? Data( contentsOf: url ), data.count >= 4
+    else
+    {
+        return false
+    }
+    
+    let u1    = UInt32( data[ 0 ] )
+    let u2    = UInt32( data[ 1 ] )
+    let u3    = UInt32( data[ 2 ] )
+    let u4    = UInt32( data[ 3 ] )
+    let magic = u1 | ( u2 << 8 ) | ( u3 << 16 ) | ( u4 << 24 )
+    
+    return signatures.contains { $0 == magic }
+}
+
+func isWindowsPE( url: URL ) -> Bool
+{
+    let signatures: [ UInt32 ] =
+    [
+        0x5A4D,
+        0x4D5A,
+    ]
+    
+    guard let data = try? Data( contentsOf: url ), data.count >= 2
+    else
+    {
+        return false
+    }
+    
+    let u1    = UInt32( data[ 0 ] )
+    let u2    = UInt32( data[ 1 ] )
+    let magic = u1 | ( u2 << 8 )
+    
+    return signatures.contains { $0 == magic }
 }
 
 func getLines( command: String, arguments: [ String ] ) -> [ String ]
@@ -116,19 +178,32 @@ func getLines( command: String, arguments: [ String ] ) -> [ String ]
     return out.components( separatedBy: .newlines )
 }
 
-func getStrings( url: URL ) -> [ String ]
+func getStrings( file: ( url: URL, type: FileType ) ) -> [ String ]
 {
-    getLines( command: "/usr/bin/strings", arguments: [ url.path ] )
+    switch file.type
+    {
+        case .machO:     return getLines( command: "/usr/bin/strings",         arguments: [ file.url.path ] )
+        case .windowsPE: return getLines( command: "/opt/homebrew/bin/rpecli", arguments: [ "strings", file.url.path ] )
+    }
 }
 
-func getSymbols( url: URL ) -> [ String ]
+func getSymbols( file: ( url: URL, type: FileType ) ) -> [ String ]
 {
-    getLines( command: "/usr/bin/nm", arguments: [ url.path ] )
+    switch file.type
+    {
+        case .machO:     return getLines( command: "/usr/bin/nm",              arguments: [ file.url.path ] )
+        case .windowsPE: return getLines( command: "/opt/homebrew/bin/rpecli", arguments: [ "export", file.url.path ] )
+    }
+    
 }
 
-func getObjCMethods( url: URL ) -> [ String ]
+func getObjCMethods( file: ( url: URL, type: FileType ) ) -> [ String ]
 {
-    getLines( command: "/opt/homebrew/bin/macho", arguments: [ "-m", url.path ] )
+    switch file.type
+    {
+        case .machO:     return getLines( command: "/opt/homebrew/bin/macho", arguments: [ "-m", file.url.path ] )
+        case .windowsPE: return []
+    }
 }
 
 func contains( string: String, search: [ String ] ) -> Bool
