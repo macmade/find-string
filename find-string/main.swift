@@ -50,6 +50,53 @@ else
     exit( -1 )
 }
 
+let files: [ URL ] = enumerator.compactMap
+{
+    file in return autoreleasepool
+    {
+        guard let file = file as? String
+        else
+        {
+            return nil
+        }
+        
+        let url = URL( fileURLWithPath: options.path ).appendingPathComponent( file )
+
+        guard FileManager.default.isExecutableFile( atPath: url.path )
+        else
+        {
+            return nil
+        }
+        
+        return url
+    }
+}
+
+files.forEach
+{
+    file in autoreleasepool
+    {
+        let strings     = getStrings( url: file )
+        let symbols     = options.symbols ? getSymbols(     url: file ) : []
+        let objcMethods = options.objc    ? getObjCMethods( url: file ) : []
+        let all         = [ strings, symbols, objcMethods ].flatMap { $0 }
+        let matches     = all.filter
+        {
+            contains( string: $0, search: options.strings )
+        }
+        
+        if matches.isEmpty == false
+        {
+            print( file.path )
+            
+            matches.forEach
+            {
+                print( "    \( $0.trimmingCharacters( in: .whitespaces ) )" )
+            }
+        }
+    }
+}
+
 func getLines( command: String, arguments: [ String ] ) -> [ String ]
 {
     guard let task    = Task.run( path: command, arguments: arguments, input: nil ),
@@ -78,48 +125,17 @@ func getObjCMethods( url: URL ) -> [ String ]
     getLines( command: "/opt/homebrew/bin/macho", arguments: [ "-m", url.path ] )
 }
 
-enumerator.compactMap { $0 as? String }.forEach
+func contains( string: String, search: [ String ] ) -> Bool
 {
-    name in autoreleasepool
+    return search.contains
     {
-        let url = URL( fileURLWithPath: options.path ).appendingPathComponent( name )
-
-        guard FileManager.default.isExecutableFile( atPath: url.path )
+        if options.insensitive
+        {
+            return string.localizedCaseInsensitiveContains( $0 )
+        }
         else
         {
-            return
-        }
-        
-        let strings     = getStrings( url: url )
-        let symbols     = options.symbols ? getSymbols(     url: url ) : []
-        let objcMethods = options.objc    ? getObjCMethods( url: url ) : []
-        let all         = [ strings, symbols, objcMethods ].flatMap { $0 }
-        
-        options.strings.forEach
-        {
-            search in
-            
-            let matches = all.filter
-            {
-                if options.insensitive
-                {
-                    return $0.localizedCaseInsensitiveContains( search )
-                }
-                else
-                {
-                    return $0.contains( search )
-                }
-            }
-            
-            if matches.isEmpty == false
-            {
-                print( url.path )
-                
-                matches.forEach
-                {
-                    print( "    \( $0.trimmingCharacters( in: .whitespaces ) )" )
-                }
-            }
+            return string.contains( $0 )
         }
     }
 }
